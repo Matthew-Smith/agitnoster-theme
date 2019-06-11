@@ -26,7 +26,21 @@
 # A few utility functions to make it easy and re-usable to draw segmented prompts
 
 CURRENT_BG='NONE'
-SEGMENT_SEPARATOR='⮀'
+
+() {
+  local LC_ALL="" LC_CTYPE="en_US.UTF-8"
+  # NOTE: This segment separator character is correct.  In 2012, Powerline changed
+  # the code points they use for their special characters. This is the new code point.
+  # If this is not working for you, you probably have an old version of the
+  # Powerline-patched fonts installed. Download and install the new version.
+  # Do not submit PRs to change this unless you have reviewed the Powerline code point
+  # history and have new information.
+  # This is defined using a Unicode escape sequence so it is unambiguously readable, regardless of
+  # what font the user is viewing this source code in. Do not replace the
+  # escape sequence with a single literal character.
+  # Do not change this! Do not make it '\u2b80'; that is the old, wrong code point.
+  SEGMENT_SEPARATOR=$'\ue0b0'
+}
 
 # Begin a segment
 # Takes two arguments, background and foreground. Both can be omitted,
@@ -51,20 +65,19 @@ prompt_end() {
   else
     echo -n "%{%k%}"
   fi
-  echo -n "%{%f%}"
+  echo -n "\n> %{%f%}"
   CURRENT_BG=''
 }
 
 ### Prompt components
 # Each component will draw itself, and hide itself if no information needs to be shown
 
-# Context: user@hostname (who am I and where am I)
+# Context: use random emoji
 prompt_context() {
-  local user=`whoami`
-
-  if [[ "$user" != "$DEFAULT_USER" || -n "$SSH_CLIENT" ]]; then
-    prompt_segment black default "%(!.%{%F{yellow}%}.)$user@%m"
-  fi
+  # Custom (Random emoji)
+  emojis=("🍻" "🦄" "🎉" "🤖" "🦖" "🌎" "🌶" "🎮")
+  RAND_EMOJI_N=$(( $RANDOM % ${#emojis[@]} + 1))
+  prompt_segment black default "${emojis[$RAND_EMOJI_N]} "
 }
 
 # Git
@@ -84,37 +97,37 @@ git_details() {
   conflict=`count_lines "$staged_files" U`
   deleted=$(( `all_lines "$gitstatus"` - `count_lines "$gitstatus" U` - `count_lines "$gitstatus" M` ))
   staged=$(( `all_lines "$staged_files"` - num_conflicts ))
-  stashed=`git stash list | wc -l`
+  stashed=`git stash list | wc -l | sed -e 's/^[ \t]*//'`
   untracked=`git status -s -uall | grep -c "^??"`
 
   if [[ $staged -ne "0" ]]; then
-      prompt_segment blue white
-      echo -n "⚫ ${staged}"
+      prompt_segment green white
+      echo -n "🚀 ${staged}"
   fi
 
   if [[ $untracked -ne "0" ]]; then
-      prompt_segment green white
-      echo -n "✚ ${untracked}"
+      prompt_segment blue white
+      echo -n "💡 ${untracked}"
   fi
 
   if [[ $deleted -ne "0" ]]; then
       prompt_segment red white
-      echo -n "- ${deleted}"
+      echo -n "🔥 ${deleted}"
   fi
 
   if [[ $changed -ne "0" ]]; then
       prompt_segment magenta white
-      echo -n " ${changed}"
+      echo -n "🔧 ${changed}"
   fi
 
   if [[ $stashed -ne "0" ]]; then
       prompt_segment cyan white
-      echo -n "⚑ ${stashed}"
+      echo -n "📌 ${stashed}"
   fi
 
   if [[ $conflict -ne "0" ]]; then
       prompt_segment red white
-      echo -n " ${conflict}"
+      echo -n "🌋 ${conflict}"
   fi
 }
 
@@ -142,11 +155,11 @@ git_branch_diff() {
     behind=$(( revs - ahead ))
 
     if [[ $ahead -ne "0" ]]; then
-        echo -n "·↑${ahead}"
+        echo -n "·⬆ ${ahead}"
     fi
 
     if [[ $behind -ne "0" ]]; then
-        echo -n "·↓${behind}"
+        echo -n "·⬇ ${behind}"
     fi
   fi
 }
@@ -165,7 +178,7 @@ prompt_git() {
       prompt_segment green black
     fi
 
-    echo -n "${ref/refs\/heads\//⭠ }"
+    echo -n "${ref/refs\/heads\//\ue0a0 }"
 
     git_branch_diff
     git_details
