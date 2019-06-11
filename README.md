@@ -31,7 +31,7 @@ Agitnoster theme requires an unicode-compatible font to show git status properly
 To check if your terminal and font support all required characters run the following command:
 
 ```
-echo " ±  ➦ ✔ ✘ ⚡"
+echo "\n\uE0B0 \uB1 \uE0A0 \u27A6 \u2714 \u2718 \u26A1 \u2699 \u2B06 \u2B07\n"
 ```
 
 The result should look like this:

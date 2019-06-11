@@ -39,7 +39,7 @@ CURRENT_BG='NONE'
   # what font the user is viewing this source code in. Do not replace the
   # escape sequence with a single literal character.
   # Do not change this! Do not make it '\u2b80'; that is the old, wrong code point.
-  SEGMENT_SEPARATOR=$'\ue0b0'
+  SEGMENT_SEPARATOR=$'\uE0B0'
 }
 
 # Begin a segment
@@ -155,11 +155,11 @@ git_branch_diff() {
     behind=$(( revs - ahead ))
 
     if [[ $ahead -ne "0" ]]; then
-        echo -n "·⬆ ${ahead}"
+        echo -n "·\u2B06 ${ahead}"
     fi
 
     if [[ $behind -ne "0" ]]; then
-        echo -n "·⬇ ${behind}"
+        echo -n "·\u2B07 ${behind}"
     fi
   fi
 }
@@ -178,7 +178,7 @@ prompt_git() {
       prompt_segment green black
     fi
 
-    echo -n "${ref/refs\/heads\//\ue0a0 }"
+    echo -n "${ref/refs\/heads\//\uE0A0 }"
 
     git_branch_diff
     git_details
@@ -205,9 +205,9 @@ prompt_virtualenv() {
 prompt_status() {
   local symbols
   symbols=()
-  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}✘" || symbols+="%{%F{green}%}✔"
-  [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}⚡"
-  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{cyan}%}⚙"
+  [[ $RETVAL -ne 0 ]] && symbols+="%{%F{red}%}\u2718" || symbols+="%{%F{green}%}\u2714"
+  [[ $UID -eq 0 ]] && symbols+="%{%F{yellow}%}\u26A1"
+  [[ $(jobs -l | wc -l) -gt 0 ]] && symbols+="%{%F{cyan}%}\u2699"
 
   [[ -n "$symbols" ]] && prompt_segment black default "$symbols"
 }
